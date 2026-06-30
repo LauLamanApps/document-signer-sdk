@@ -384,12 +384,12 @@ returned from a test helper.
 When you get stuck, the built-in providers are short enough to read end to
 end:
 
-- ValidSign: [`validsign/src/ValidSignProvider.php`](../../validsign/src/ValidSignProvider.php),
-  [`validsign/src/Placeholder/ValidSignPlaceholderReplacer.php`](../../validsign/src/Placeholder/ValidSignPlaceholderReplacer.php),
-  [`validsign/tests/ValidSignProviderTest.php`](../../validsign/tests/ValidSignProviderTest.php).
-- DocuSign: [`docusign/src/DocuSignProvider.php`](../../docusign/src/DocuSignProvider.php),
-  [`docusign/src/Placeholder/DocuSignPlaceholderReplacer.php`](../../docusign/src/Placeholder/DocuSignPlaceholderReplacer.php),
-  [`docusign/tests/DocuSignProviderTest.php`](../../docusign/tests/DocuSignProviderTest.php).
+- ValidSign: [`src/ValidSignProvider.php`](https://github.com/LauLamanApps/document-signer-validsign/blob/main/src/ValidSignProvider.php),
+  [`src/Placeholder/ValidSignPlaceholderReplacer.php`](https://github.com/LauLamanApps/document-signer-validsign/blob/main/src/Placeholder/ValidSignPlaceholderReplacer.php),
+  [`tests/ValidSignProviderTest.php`](https://github.com/LauLamanApps/document-signer-validsign/blob/main/tests/ValidSignProviderTest.php).
+- DocuSign: [`src/DocuSignProvider.php`](https://github.com/LauLamanApps/document-signer-docusign/blob/main/src/DocuSignProvider.php),
+  [`src/Placeholder/DocuSignPlaceholderReplacer.php`](https://github.com/LauLamanApps/document-signer-docusign/blob/main/src/Placeholder/DocuSignPlaceholderReplacer.php),
+  [`tests/DocuSignProviderTest.php`](https://github.com/LauLamanApps/document-signer-docusign/blob/main/tests/DocuSignProviderTest.php).
 
 Both are under 300 lines.
 
