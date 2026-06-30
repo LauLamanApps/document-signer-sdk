@@ -1,0 +1,28 @@
+{
+    "name": "laulamanapps/document-signer-sdk",
+    "description": "Provider-agnostic e-signature SDK for PHP: build envelopes from HTML templates with {[type:signer:name]} placeholders, render them to PDF, and send them through any SignatureProvider implementation (ValidSign, DocuSign, or your own).",
+    "type": "library",
+    "license": "proprietary",
+    "require": {
+        "php": "^8.5",
+        "spatie/browsershot": "^4.0 || ^5.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^11.0"
+    },
+    "suggest": {
+        "laulamanapps/document-signer-validsign": "Required to use ValidSign.",
+        "laulamanapps/document-signer-docusign":  "Required to use DocuSign"
+    },
+    "autoload": {
+        "psr-4": {
+            "LauLamanApps\\DocumentSigner\\Sdk\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "LauLamanApps\\DocumentSigner\\Sdk\\Tests\\": "tests/"
+        }
+    },
+    "minimum-stability": "stable"
+}
