@@ -51,7 +51,7 @@ final class PlaceholderParserTest extends TestCase
     #[Test]
     public function it_tolerates_whitespace_around_segments_and_aliases_resolve(): void
     {
-        $html = '{{ sig : signer1 : sig_top }}';
+        $html = '{[ sig : signer1 : sig_top ]}';
         [$placeholder] = (new PlaceholderParser())->parse($html);
 
         self::assertSame(FieldType::Signature, $placeholder->type);
