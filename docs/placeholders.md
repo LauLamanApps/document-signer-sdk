@@ -3,15 +3,18 @@
 ## The shape
 
 ```
-{[type:signer:name]}
+{[type:signer:name]}     — required (default)
+{[?type:signer:name]}    — optional
 ```
 
-Three colon-separated segments inside double curly braces. Whitespace around the
-braces and around each colon is tolerated; whitespace **inside** a segment is
-not.
+Three colon-separated segments inside double curly braces. Whitespace around
+the braces and around each colon is tolerated; whitespace **inside** a segment
+is not. A leading `?` before the type marks the field as optional; without it
+the field defaults to required.
 
 | Segment | Meaning | Allowed characters |
 | --- | --- | --- |
+| `?` (optional) | If present, marks the field as optional. Default is required. | literal `?` |
 | `type` | The kind of field. See the table below. | `[A-Za-z]+` |
 | `signer` | Matches `Signer::$key` on the envelope. Tells the provider whose signature/data this is. | `[A-Za-z0-9_\-]+` |
 | `name` | Field name, unique per signer per document. Used as the provider tab label. | `[A-Za-z0-9_\-]+` |
@@ -76,6 +79,27 @@ signers receive the envelope simultaneously.
 <p>... terms continue here ...</p>
 <div class="initials-block">{[initials:customer:initials_pg2]}</div>
 ```
+
+### Required vs optional fields
+
+Every placeholder is required by default. Prefix the type with `?` to make
+the field optional — the signer can submit without filling it in:
+
+```html
+<p>Full name: {[text:customer:fullname]}</p>          <!-- required -->
+<p>Phone (optional): {[?text:customer:phone]}</p>     <!-- optional -->
+<p>{[?checkbox:customer:opt_in]} Receive updates</p>  <!-- optional checkbox -->
+<p>Co-signer: {[?signature:witness:sig]}</p>          <!-- optional signature -->
+```
+
+Provider mapping:
+
+- **ValidSign** — required text/checkbox use the `*esl:` tag prefix; optional
+  signature/initials use `?esl:`. `SigningDate` is auto-populated and ignores
+  the flag.
+- **DocuSign** — the `required` attribute on `textTabs` / `checkboxTabs` is
+  set to `"true"` / `"false"`. Signature and initial tabs are always required
+  in DocuSign and don't take the attribute.
 
 ## Rules and gotchas
 

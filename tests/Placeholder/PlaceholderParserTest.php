@@ -75,4 +75,33 @@ final class PlaceholderParserTest extends TestCase
 
         self::assertSame('s1:sig', $placeholder->identityKey());
     }
+
+    #[Test]
+    public function placeholders_are_required_by_default(): void
+    {
+        [$placeholder] = (new PlaceholderParser())->parse('{[text:s1:name]}');
+
+        self::assertTrue($placeholder->required);
+    }
+
+    #[Test]
+    public function question_mark_prefix_marks_a_placeholder_as_optional(): void
+    {
+        $html = '<p>{[?text:s1:name]} required {[signature:s1:sig]} optional {[?signature:s2:sig]}</p>';
+        $parsed = (new PlaceholderParser())->parse($html);
+
+        self::assertCount(3, $parsed);
+        self::assertFalse($parsed[0]->required, 'optional text');
+        self::assertTrue($parsed[1]->required,  'required signature');
+        self::assertFalse($parsed[2]->required, 'optional signature');
+    }
+
+    #[Test]
+    public function whitespace_between_question_mark_and_type_is_tolerated(): void
+    {
+        [$placeholder] = (new PlaceholderParser())->parse('{[ ? text : s1 : name ]}');
+
+        self::assertFalse($placeholder->required);
+        self::assertSame(FieldType::Text, $placeholder->type);
+    }
 }

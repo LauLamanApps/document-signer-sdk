@@ -136,6 +136,28 @@ $zip->extractTo(storage_path('signed/'));
 $zip->close();
 ```
 
+### Extract signed field data
+
+For structured data the signer typed during signing (SEPA IBAN, free-text
+answers, checkbox selections), use `getFieldValues()`:
+
+```php
+foreach ($provider->getFieldValues($receipt->providerEnvelopeId) as $field) {
+    if ($field->fieldName === 'iban' && $field->value !== null) {
+        SepaMandate::create([
+            'iban'         => $field->value,
+            'document_id'  => $field->documentId,
+            'signer_key'   => $field->signerKey,
+        ]);
+    }
+}
+```
+
+Each `FieldValue` carries the placeholder's `fieldName`, the document/signer
+identifiers, and the signer-typed `value`. Fields that were optional and left
+blank come back with `value === null`. See the provider guides for the exact
+endpoint each provider hits.
+
 The status enum is normalised across providers — see
 [`EnvelopeStatus`](../src/Envelope/EnvelopeStatus.php). Provider-specific
 status names are mapped in each provider's guide.

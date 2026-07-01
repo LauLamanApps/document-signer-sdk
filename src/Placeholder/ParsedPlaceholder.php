@@ -14,6 +14,9 @@ final readonly class ParsedPlaceholder
      * @param string    $signerKey   Signer slot key (the middle segment of the placeholder).
      * @param string    $fieldName   Field name (the last segment of the placeholder).
      * @param int       $byteOffset  Byte offset of `$raw` in the source HTML.
+     * @param bool      $required    Whether the signer must fill this field before submitting.
+     *                               Defaults to `true`; a `?` prefix in the placeholder
+     *                               (e.g. `{[?text:s1:name]}`) makes it `false`.
      */
     public function __construct(
         public string    $raw,
@@ -21,6 +24,7 @@ final readonly class ParsedPlaceholder
         public string    $signerKey,
         public string    $fieldName,
         public int       $byteOffset,
+        public bool      $required = true,
     ) {}
 
     /**

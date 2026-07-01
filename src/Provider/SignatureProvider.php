@@ -58,6 +58,24 @@ interface SignatureProvider
     public function downloadAudit(string $providerEnvelopeId): \SplFileInfo;
 
     /**
+     * Retrieve the values signers filled into every form field on the envelope.
+     *
+     * Providers return the same normalised `FieldValue` shape from their native
+     * field-summary endpoint:
+     *  - ValidSign: `GET /packages/{id}/fieldSummary`
+     *  - DocuSign:  `GET /v2.1/accounts/{accountId}/envelopes/{envelopeId}/form_data`
+     *
+     * Useful for extracting structured data typed by a signer during signing
+     * (e.g. an IBAN in a SEPA-mandate text field). Fields the signer left blank
+     * come back with `$value === null`; fields on unfinished envelopes may be
+     * missing entirely.
+     *
+     * @return list<FieldValue>
+     * @throws ProviderException
+     */
+    public function getFieldValues(string $providerEnvelopeId): array;
+
+    /**
      * Cancel / void an in-flight envelope.
      *
      * @throws ProviderException

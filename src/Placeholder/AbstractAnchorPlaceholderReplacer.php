@@ -42,6 +42,7 @@ abstract class AbstractAnchorPlaceholderReplacer implements PlaceholderReplacer
                 signerKey: $placeholder->signerKey,
                 fieldName: $placeholder->fieldName,
                 anchorString: $anchor,
+                required: $placeholder->required,
             );
         }
 

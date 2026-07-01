@@ -20,5 +20,6 @@ final readonly class PreparedField
         public string    $signerKey,
         public string    $fieldName,
         public string    $anchorString,
+        public bool      $required = true,
     ) {}
 }
