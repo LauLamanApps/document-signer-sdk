@@ -26,8 +26,8 @@ For every envelope your provider receives it should:
 5. Translate the provider's status vocabulary into the normalised
    `EnvelopeStatus` enum on the way back.
 
-You implement four entry points — `send`, `getStatus`, `downloadSigned`,
-`cancel` — and translate provider errors into `ProviderException`.
+You implement five entry points — `send`, `getStatus`, `downloadSigned`,
+`downloadAudit`, `cancel` — and translate provider errors into `ProviderException`.
 
 ## 1. Pick a name and create the package
 
@@ -246,9 +246,22 @@ final class HellosignProvider implements SignatureProvider
                                 $response['signature_request']['is_declined']  ?? null);
     }
 
-    public function downloadSigned(string $providerEnvelopeId): string
+    public function downloadSigned(string $providerEnvelopeId): \SplFileInfo
     {
-        return $this->client->downloadFiles($providerEnvelopeId);
+        return TempFile::fromBytes(
+            bytes: $this->client->downloadSignedArchive($providerEnvelopeId),
+            prefix: 'hellosign-signed-',
+            extension: 'zip',
+        );
+    }
+
+    public function downloadAudit(string $providerEnvelopeId): \SplFileInfo
+    {
+        return TempFile::fromBytes(
+            bytes: $this->client->downloadEvidence($providerEnvelopeId),
+            prefix: 'hellosign-audit-',
+            extension: 'pdf',
+        );
     }
 
     public function cancel(string $providerEnvelopeId, ?string $reason = null): void
@@ -266,7 +279,8 @@ final class HellosignProvider implements SignatureProvider
 | --- | --- | --- |
 | `send` | Push the envelope to "sent" state at the provider. Return the provider's id and a non-`Draft` status. | Throw any exception other than `ProviderException` (wrap renderer/HTTP errors). |
 | `getStatus` | Return one of the `EnvelopeStatus` enum cases. Use `EnvelopeStatus::Unknown` for vocabulary you don't recognise. | Cache the result. Callers expect a fresh fetch. |
-| `downloadSigned` | Return raw PDF (or ZIP) bytes. | Decode, transform, or write to disk. |
+| `downloadSigned` | Return an `\SplFileInfo` pointing at a temp file holding a ZIP archive of the signed documents — one PDF per envelope document. Use `Sdk\Support\TempFile::fromBytes()` with extension `zip`. | Return a merged single PDF (loses per-doc boundaries). Delete the file — the caller owns its lifecycle. |
+| `downloadAudit` | Return an `\SplFileInfo` pointing at a temp file holding the provider's audit / evidence data. Use `Sdk\Support\TempFile::fromBytes()` and set the extension (`.json` / `.pdf`) so callers can dispatch on content type. | Keep the file open. Delete the file — the caller owns its lifecycle. |
 | `cancel` | Void / archive / delete according to the provider's semantics. Idempotent if possible. | Swallow errors. Surface them as `ProviderException`. |
 
 ### Status mapping pattern

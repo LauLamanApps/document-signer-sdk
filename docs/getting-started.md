@@ -107,14 +107,33 @@ echo $receipt->providerEnvelopeId; // e.g. "qZf2X1..."
 echo $receipt->status->value;      // "sent"
 ```
 
-## 6. Track status and retrieve the signed PDF
+## 6. Track status and retrieve the signed documents
+
+Both `downloadSigned()` and `downloadAudit()` return an `\SplFileInfo` pointing
+at a temp file the SDK just wrote — you own the file after the call:
 
 ```php
 $status = $provider->getStatus($receipt->providerEnvelopeId);
 
 if ($status->value === 'completed') {
-    file_put_contents('signed.pdf', $provider->downloadSigned($receipt->providerEnvelopeId));
+    // Signed documents come back as a ZIP archive with one PDF per document
+    // in the envelope, so multi-document envelopes stay separable.
+    $archive = $provider->downloadSigned($receipt->providerEnvelopeId);
+    rename($archive->getPathname(), storage_path('nda.zip'));
+
+    // Audit / evidence: DocuSign returns `.json`, ValidSign returns `.pdf`.
+    $audit = $provider->downloadAudit($receipt->providerEnvelopeId);
+    rename($audit->getPathname(), storage_path('nda-audit.' . $audit->getExtension()));
 }
+```
+
+If you want per-document PDFs out of the archive, open it with `ZipArchive`:
+
+```php
+$zip = new ZipArchive();
+$zip->open($archive->getPathname());
+$zip->extractTo(storage_path('signed/'));
+$zip->close();
 ```
 
 The status enum is normalised across providers — see

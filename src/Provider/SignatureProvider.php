@@ -25,12 +25,37 @@ interface SignatureProvider
     public function getStatus(string $providerEnvelopeId): EnvelopeStatus;
 
     /**
-     * Download the signed (and, where applicable, certificate-of-completion-merged) PDF.
+     * Download every signed document in the envelope as a ZIP archive.
      *
-     * @return string Raw PDF bytes.
+     * The response is materialised to a temp file on disk and returned as an
+     * {@see \SplFileInfo} with a `.zip` extension. The archive contains one
+     * signed PDF per {@see \LauLamanApps\DocumentSigner\Sdk\Document\Document}
+     * in the original envelope, so callers can iterate signed documents in
+     * their original order.
+     *
+     * Callers own the file lifecycle: unlink it, or copy the contents to a
+     * durable location, when done. Nothing here removes it automatically.
+     *
      * @throws ProviderException
      */
-    public function downloadSigned(string $providerEnvelopeId): string;
+    public function downloadSigned(string $providerEnvelopeId): \SplFileInfo;
+
+    /**
+     * Download the provider's audit trail / evidence report for the envelope.
+     *
+     * Providers return different content shapes here, so the response is
+     * materialised to a temp file on disk and returned as an {@see \SplFileInfo};
+     * check `->getExtension()` to distinguish:
+     *
+     *  - DocuSign: `.json` — the envelope audit-events feed.
+     *  - ValidSign: `.pdf` — the Evidence Summary Report.
+     *
+     * Callers own the file lifecycle: unlink it, or copy the contents to a
+     * durable location, when done. Nothing here removes it automatically.
+     *
+     * @throws ProviderException
+     */
+    public function downloadAudit(string $providerEnvelopeId): \SplFileInfo;
 
     /**
      * Cancel / void an in-flight envelope.

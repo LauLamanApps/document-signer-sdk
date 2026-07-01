@@ -118,7 +118,8 @@ echo $receipt->providerEnvelopeId; // DocuSign envelopeId GUID
 | --- | --- |
 | `send()` | `POST /v2.1/accounts/{accountId}/envelopes` with base64-encoded documents and anchor tabs. |
 | `getStatus()` | `GET /v2.1/accounts/{accountId}/envelopes/{envelopeId}` |
-| `downloadSigned()` | `GET /v2.1/accounts/{accountId}/envelopes/{envelopeId}/documents/combined` (single merged PDF). |
+| `downloadSigned()` | `GET /v2.1/accounts/{accountId}/envelopes/{envelopeId}/documents/archive` — returns a ZIP with one signed PDF per document in the envelope. Materialised to a temp file, returned as `\SplFileInfo` with a `.zip` extension. |
+| `downloadAudit()` | `GET /v2.1/accounts/{accountId}/envelopes/{envelopeId}/audit_events` — returns the envelope audit-events feed as JSON. Materialised to a temp file, returned as `\SplFileInfo` with a `.json` extension. |
 | `cancel()` | `PUT /v2.1/accounts/{accountId}/envelopes/{envelopeId}` with `{ "status": "voided", "voidedReason": "..." }`. |
 
 ## Field mapping

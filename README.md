@@ -75,6 +75,7 @@ relevant guide:
 - [DocuSign provider](docs/providers/docusign.md)
 - [Extending the SDK](docs/extending.md)
 - [Writing a custom provider](docs/custom-provider.md)
+- [Error handling](docs/errors.md)
 
 ## Requirements
 

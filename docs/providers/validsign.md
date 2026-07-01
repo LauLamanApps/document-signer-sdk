@@ -93,7 +93,8 @@ echo $receipt->providerEnvelopeId; // ValidSign packageId
 | --- | --- |
 | `send()` | `POST /packages` (multipart: JSON `payload` + one `file` part per PDF) |
 | `getStatus()` | `GET /packages/{id}` |
-| `downloadSigned()` | `GET /packages/{id}/documents/zip` (returns a ZIP of every signed PDF in the package) |
+| `downloadSigned()` | `GET /packages/{id}/documents/zip` — returns a ZIP with one signed PDF per document in the package. Materialised to a temp file, returned as `\SplFileInfo` with a `.zip` extension. |
+| `downloadAudit()` | `GET /packages/{id}/evidence/summary` — returns the Evidence Summary Report as a PDF. Materialised to a temp file, returned as `\SplFileInfo` with a `.pdf` extension. |
 | `cancel()` | `DELETE /packages/{id}` |
 
 ## Field mapping
