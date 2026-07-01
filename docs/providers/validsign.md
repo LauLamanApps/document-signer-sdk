@@ -1,7 +1,9 @@
 # ValidSign provider
 
-`laulamanapps/documentsigner-validsign` ships a `SignatureProvider` implementation backed by
-the [ValidSign / OneSpan Sign REST API](https://my.validsign.nl/).
+`laulamanapps/document-signer-validsign` ships a `SignatureProvider` implementation backed by
+[ValidSign](https://www.validsign.eu/)'s REST API and its native
+[text-tag](https://validsign.zendesk.com/hc/nl/articles/360037747091-Text-tags-gebruiken-binnen-documenten)
+field-placement mechanism.
 
 ## Credentials
 
@@ -99,19 +101,26 @@ echo $receipt->providerEnvelopeId; // ValidSign packageId
 
 ## Field mapping
 
-The provider translates each `FieldType` into the ValidSign field shape:
+Each SDK `FieldType` becomes a native ValidSign
+[text-tag](https://validsign.zendesk.com/hc/nl/articles/360037747091-Text-tags-gebruiken-binnen-documenten)
+in the rendered PDF. `<name>` is the placeholder's field name; `SignerN` is
+the signer's positional index in `Envelope::$signers` (1-based).
 
-| `FieldType` | ValidSign `type` / `subtype` | Default width × height (px) |
+| `FieldType` | Emitted text-tag | Default W × H |
 | --- | --- | --- |
-| `Signature` | `SIGNATURE` / `FULLNAME` | 150 × 50 |
-| `Initials` | `SIGNATURE` / `INITIALS` | 150 × 50 |
-| `Text` | `INPUT` / `TEXTFIELD` | 180 × 20 |
-| `Date` | `INPUT` / `LABEL` (binding `{approval.signed}`) | 120 × 20 |
-| `Checkbox` | `INPUT` / `CHECKBOX` | 20 × 20 |
+| `Signature` | `{{esl_<name>:SignerN:Signature:size(200,50)}}` | 200 × 50 |
+| `Initials` | `{{esl_<name>:SignerN:initials:size(100,30)}}` | 100 × 30 |
+| `Text` | `{{*esl_<name>:SignerN:TextField:size(200,20)}}` | 200 × 20 |
+| `Date` | `{{esl_<name>:SignerN:SigningDate:size(120,20)}}` (auto-populated by ValidSign) | 120 × 20 |
+| `Checkbox` | `{{*esl_<name>:SignerN:Checkbox:size(20,20)}}` | 20 × 20 |
 
-Anchor extraction is enabled per document (`extract: true`) and each field
-carries an `extractAnchor` block pointing at the unique
-`[[VS:type:signer:name]]` token rendered into the PDF.
+The `*` prefix marks a field as required. Signatures and initials are
+implicitly required per ValidSign so no prefix is applied; `SigningDate` is
+auto-populated when the signer signs.
+
+`documents[].extract = true` is set on every uploaded PDF; ValidSign detects
+these tags server-side and places the fields on the corresponding signer, so
+the create-package payload doesn't need an `approvals` / `fields` block.
 
 ## Sequential signing
 
@@ -143,8 +152,17 @@ $provider = new ValidSignProvider($config, client: $client);
 
 - **`401 Unauthorized`**: API key wrong, expired, or missing the `Basic `
   prefix. Sanity-check by curling `GET /packages?from=0&to=1` with the same key.
-- **Field placed on wrong page / not extracted**: the anchor `[[VS:...]]`
-  didn't survive the PDF text layer. Run `pdftotext yourfile.pdf -` and grep
-  for the token. If absent, see [PDF rendering](../pdf-rendering.md).
+- **Field placed on wrong page / not extracted**: the text-tag
+  `{{esl_…:SignerN:…}}` didn't survive the PDF text layer. Run
+  `pdftotext yourfile.pdf -` and grep for `esl_`. If absent, see
+  [PDF rendering](../pdf-rendering.md).
+- **Field placed on the wrong signer**: `SignerN` is positional in the API's
+  `roles[]` array (which mirrors `Envelope::$signers` order). If a signer is
+  configured before the intended one in the envelope, the tag will resolve
+  to the earlier signer. Reorder `$envelope->signers` accordingly.
+- **`Aanhalingstekens Word` quote errors when uploading**: ValidSign's tag
+  parser rejects Word's "smart quotes". If you generate the HTML from a Word
+  document or a rich-text editor, normalise `“…”` to plain `"..."` before
+  passing to the SDK.
 - **`Document references unknown signer key`**: a placeholder references a
   `signerKey` you forgot to add to `Envelope::$signers`.

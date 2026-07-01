@@ -103,13 +103,13 @@ the token in place with:
 
 ```html
 <span data-ds-anchor="1" style="color:#ffffff;font-size:1pt;line-height:0;
-      letter-spacing:0;white-space:nowrap;">[[VS:signature:counterparty:sig]]</span>
+      letter-spacing:0;white-space:nowrap;">{{esl_sig:Signer1:Signature:size(200,50)}}</span>
 ```
 
 The exact anchor token is provider-specific:
 
-- ValidSign: `[[VS:signature:counterparty:sig]]`
-- DocuSign:  `**DS:signature:counterparty:sig**`
+- ValidSign: `{{esl_sig:Signer1:Signature:size(200,50)}}` — [native ValidSign text-tag](https://validsign.zendesk.com/hc/nl/articles/360037747091-Text-tags-gebruiken-binnen-documenten); the SDK maps `counterparty` to the positional `Signer1` role.
+- DocuSign:  `**DS:signature:counterparty:sig**` — an anchor string used by DocuSign's anchor-tab API to position the signature tab.
 
 The `<span>` keeps the anchor in the PDF text layer (so the provider's
 extraction engine can find it) while making it invisible to the signer.

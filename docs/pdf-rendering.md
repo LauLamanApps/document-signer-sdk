@@ -170,7 +170,7 @@ $provider = new DocuSignProvider(
 Two things to verify when swapping the renderer:
 
 1. **Anchor strings appear verbatim in the output PDF's text layer.** Run
-   `pdftotext signed.pdf -` and confirm you see `[[VS:...]]` or `**DS:...**`
+   `pdftotext signed.pdf -` and confirm you see `{{esl_…}}` (ValidSign) or `**DS:...**` (DocuSign)
    tokens. If they don't appear, the provider can't position the field.
 2. **The anchor `<span>` doesn't paginate awkwardly.** Browsershot's defaults
    are safe; if you produce paginated PDFs through another tool, ensure the

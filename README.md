@@ -17,7 +17,7 @@ and creates the envelope.
 | Package | Path | Purpose |
 | --- | --- | --- |
 | `laulamanapps/document-signer-sdk` | `sdk/` | Domain model, placeholder parser, anchor-replacer base, Browsershot PDF renderer, `SignatureProvider` contract. |
-| `laulamanapps/document-signer-validsign` | `validsign/` | ValidSign (OneSpan Sign) implementation. |
+| `laulamanapps/document-signer-validsign` | `validsign/` | ValidSign implementation. |
 | `laulamanapps/document-signer-docusign` | `docusign/` | DocuSign eSignature implementation. |
 
 All three are installed together for local development through the root
