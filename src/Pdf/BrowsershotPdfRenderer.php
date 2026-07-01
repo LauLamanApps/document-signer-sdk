@@ -12,10 +12,19 @@ final class BrowsershotPdfRenderer implements PdfRenderer
     /**
      * @param \Closure(Browsershot):void|null $configure Optional hook to customise paper size,
      *                                                   margins, headers/footers, node binary, etc.
+     *
+     * @throws DocumentSignerException When spatie/browsershot isn't installed.
      */
     public function __construct(
         private readonly ?\Closure $configure = null,
-    ) {}
+    ) {
+        if (!class_exists(Browsershot::class)) {
+            throw new DocumentSignerException(
+                'BrowsershotPdfRenderer requires spatie/browsershot, which is not installed. '
+                . 'Install it with: composer require spatie/browsershot'
+            );
+        }
+    }
 
     public function render(string $html): string
     {

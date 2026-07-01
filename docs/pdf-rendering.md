@@ -27,6 +27,21 @@ which drives headless Chromium via Puppeteer. Defaults:
 These defaults work well for typical contract templates and reliably keep the
 hidden anchor `<span>`s in the text layer.
 
+### Install spatie/browsershot
+
+The SDK ships the `BrowsershotPdfRenderer` class but not the Composer
+dependency — Browsershot is listed under `suggest`, so callers only pull it
+in when they actually intend to use it. Instantiating the renderer without it
+throws a `DocumentSignerException` pointing at the install command:
+
+```bash
+composer require spatie/browsershot
+```
+
+If you plan to swap to a different engine (Gotenberg, wkhtmltopdf, an
+external service, spatie/laravel-pdf on Laravel), you can skip this and
+implement `PdfRenderer` yourself — see the sections below.
+
 ### Install Puppeteer
 
 Browsershot needs a Node toolchain reachable on `PATH`:

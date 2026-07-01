@@ -4,13 +4,14 @@
     "type": "library",
     "license": "proprietary",
     "require": {
-        "php": "^8.5",
-        "spatie/browsershot": "^4.0 || ^5.0"
+        "php": "^8.5"
     },
     "require-dev": {
-        "phpunit/phpunit": "^11.0"
+        "phpunit/phpunit": "^11.0",
+        "spatie/browsershot": "^4.0 || ^5.0"
     },
     "suggest": {
+        "spatie/browsershot": "Required to use the bundled BrowsershotPdfRenderer (default PDF renderer).",
         "laulamanapps/document-signer-validsign": "Required to use ValidSign.",
         "laulamanapps/document-signer-docusign":  "Required to use DocuSign"
     },

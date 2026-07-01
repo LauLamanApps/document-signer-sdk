@@ -80,5 +80,15 @@ relevant guide:
 ## Requirements
 
 - PHP 8.5
-- Node.js + Puppeteer (required by `spatie/browsershot` for HTML→PDF)
+- A PDF renderer. The SDK bundles a `BrowsershotPdfRenderer` that wraps
+  [spatie/browsershot](https://github.com/spatie/browsershot), but that
+  package is an *optional* dependency you must install explicitly if you
+  want to use the default:
+  ```bash
+  composer require spatie/browsershot
+  ```
+  Constructing `BrowsershotPdfRenderer` without it throws a clear
+  install-hint. To use a different engine, implement `PdfRenderer` yourself
+  (see [PDF rendering](docs/pdf-rendering.md)).
+- Node.js + Puppeteer (only when using the Browsershot renderer — for headless Chromium)
 - A ValidSign or DocuSign account with API credentials
