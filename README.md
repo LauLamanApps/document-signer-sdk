@@ -23,6 +23,65 @@ and creates the envelope.
 All three are installed together for local development through the root
 `composer.json`, which exposes them as `path` repositories.
 
+## Fluent builder
+
+The positional `new Envelope(...)` constructor still works, but for
+step-by-step assembly there's a builder:
+
+```php
+$envelope = Envelope::builder()
+    ->name('NDA 2026-06')
+    ->emailSubject('Please sign the NDA')
+    ->emailMessage('Hi Jane, please sign at your convenience.')
+    ->addDocument($document)
+    ->addSigner($signer)
+    ->signingOrder(SigningOrder::Parallel)
+    ->withMetadata('contract_id', 42)
+    ->build();
+```
+
+`addSigner()` and `addDocument()` each accept **either** a pre-built value
+object **or** the raw constructor arguments via named parameters, so you can
+mix styles depending on what reads best at each call site:
+
+```php
+Envelope::builder()
+    ->name('NDA')
+    ->emailSubject('Please sign')
+    // Pre-built object:
+    ->addDocument(new Document(id: 'nda', name: 'NDA', html: $html))
+    // Inline named args:
+    ->addSigner(key: 'counterparty', name: 'Jane Doe', email: 'jane@example.com')
+    ->build();
+```
+
+`build()` delegates every domain invariant (duplicate signer keys, empty
+document list, etc.) to `Envelope`'s constructor — so a half-configured
+builder never blows up mid-chain.
+
+## Page decoration
+
+`Document` accepts optional header and footer HTML with per-document
+placement:
+
+```php
+new Document(
+    id:   'nda',
+    name: 'NDA',
+    html: '<h1>NDA</h1>...',
+    headerHtml: '<div class="brand">Acme Legal</div>',
+    footerHtml: '<div>Confidential</div>',
+    headerPlacement: HeaderPlacement::FirstPage,   // or ::AllPages
+    footerPlacement: FooterPlacement::AllPages,
+);
+```
+
+Under the hood the SDK's `PageDecoration` is threaded through to the PDF
+renderer. `AllPages` uses the underlying engine's native repeat-on-every-page
+header/footer slot; `FirstPage` inlines the HTML at the top/bottom of the
+body (since browsers have no native "first-page only" flag). See
+[PDF rendering](docs/pdf-rendering.md) for the details.
+
 ## End-to-end example
 
 ```php

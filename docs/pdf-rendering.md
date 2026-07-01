@@ -7,12 +7,48 @@ namespace LauLamanApps\DocumentSigner\Sdk\Pdf;
 
 interface PdfRenderer
 {
-    public function render(string $html): string; // returns binary PDF bytes
+    public function render(string $html, ?PageDecoration $decoration = null): string;
 }
 ```
 
 Anything that produces a valid PDF whose text layer preserves the anchor
-strings will work.
+strings will work. The second parameter carries optional per-document header
+and footer HTML — see [Page decoration](#page-decoration) below.
+
+## Page decoration
+
+Each `Document` can carry a header and/or footer HTML fragment plus placement
+enums controlling where they appear:
+
+```php
+use LauLamanApps\DocumentSigner\Sdk\Document\Document;
+use LauLamanApps\DocumentSigner\Sdk\Pdf\HeaderPlacement;
+use LauLamanApps\DocumentSigner\Sdk\Pdf\FooterPlacement;
+
+new Document(
+    id:   'nda',
+    name: 'NDA',
+    html: '<h1>Mutual NDA</h1>…',
+    headerHtml: '<div style="font-size:9pt;text-align:center;">Acme Legal</div>',
+    footerHtml: '<div style="font-size:8pt;text-align:right;">Confidential</div>',
+    headerPlacement: HeaderPlacement::FirstPage,   // AllPages | FirstPage
+    footerPlacement: FooterPlacement::AllPages,    // AllPages | FirstPage
+);
+```
+
+The provider hands the resulting `PageDecoration` to the renderer. Renderers
+implement the two placement modes differently:
+
+| Placement | How it's rendered |
+| --- | --- |
+| `AllPages` | The underlying engine's native repeat-on-every-page header/footer template (Browsershot / Puppeteer `headerTemplate` / `footerTemplate`). |
+| `FirstPage` | Injected as a regular block at the start or end of the body HTML. Browsers don't expose a "first-page only" flag for the native header template, so this is the pragmatic escape hatch. |
+
+**Caveat for `FirstPage` footers**: the injected footer sits at the *end of
+the body content*. If the body doesn't fill the page, the footer will appear
+directly after the content rather than at the bottom of page 1. If you need
+strict bottom-of-page-1 placement, either pad the body content or use CSS
+`position: absolute; bottom: 0;` inside your footer HTML.
 
 ## Default: Browsershot
 

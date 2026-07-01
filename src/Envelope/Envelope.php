@@ -75,4 +75,13 @@ final readonly class Envelope
         }
         return null;
     }
+
+    /**
+     * Start a fluent builder — {@see EnvelopeBuilder} — as an alternative to the
+     * positional constructor for envelopes assembled step-by-step.
+     */
+    public static function builder(): EnvelopeBuilder
+    {
+        return new EnvelopeBuilder();
+    }
 }
