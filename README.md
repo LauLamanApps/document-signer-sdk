@@ -135,6 +135,7 @@ relevant guide:
 - [Extending the SDK](docs/extending.md)
 - [Writing a custom provider](docs/custom-provider.md)
 - [Error handling](docs/errors.md)
+- [Webhook events](docs/webhook-events.md)
 
 ## Requirements
 
