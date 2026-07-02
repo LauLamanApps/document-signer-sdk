@@ -127,8 +127,12 @@ if ($status->value === 'completed') {
     rename($pdf->getPathname(), storage_path('nda.pdf'));
 
     // Audit / evidence: DocuSign returns `.json`, ValidSign returns `.pdf`.
-    $audit = $provider->downloadAudit($receipt->providerEnvelopeId);
-    rename($audit->getPathname(), storage_path('nda-audit.' . $audit->getExtension()));
+    // Gate the download on hasAuditTrail() so consumers of a hypothetical
+    // future audit-less provider degrade gracefully.
+    if ($provider->hasAuditTrail()) {
+        $audit = $provider->downloadAudit($receipt->providerEnvelopeId);
+        rename($audit->getPathname(), storage_path('nda-audit.' . $audit->getExtension()));
+    }
 }
 ```
 

@@ -27,8 +27,8 @@ For every envelope your provider receives it should:
    `EnvelopeStatus` enum on the way back.
 
 You implement the `SignatureProvider` interface — `send`, `getStatus`,
-`downloadSigned`, `downloadSignedDocument`, `downloadAudit`, `getFieldValues`,
-`cancel` — and translate provider errors into `ProviderException`.
+`downloadSigned`, `downloadSignedDocument`, `hasAuditTrail`, `downloadAudit`,
+`getFieldValues`, `cancel` — and translate provider errors into `ProviderException`.
 
 ## 1. Pick a name and create the package
 
@@ -265,6 +265,11 @@ final class HellosignProvider implements SignatureProvider
         );
     }
 
+    public function hasAuditTrail(): bool
+    {
+        return true;
+    }
+
     public function downloadAudit(string $providerEnvelopeId): \SplFileInfo
     {
         return TempFile::fromBytes(
@@ -291,7 +296,8 @@ final class HellosignProvider implements SignatureProvider
 | `getStatus` | Return one of the `EnvelopeStatus` enum cases. Use `EnvelopeStatus::Unknown` for vocabulary you don't recognise. | Cache the result. Callers expect a fresh fetch. |
 | `downloadSigned` | Return an `\SplFileInfo` pointing at a temp file holding a ZIP archive of the signed documents — one PDF per envelope document. Use `Sdk\Support\TempFile::fromBytes()` with extension `zip`. | Return a merged single PDF (loses per-doc boundaries). Delete the file — the caller owns its lifecycle. |
 | `downloadSignedDocument` | Return an `\SplFileInfo` pointing at a temp file holding the signed PDF for a single document — keyed by the same `$documentId` the caller passed on `Document::$id`. Use `Sdk\Support\TempFile::fromBytes()` with extension `pdf`. | Fall back to `downloadSigned()` + ZIP extraction on the caller's behalf — providers all expose a single-document endpoint. Delete the file. |
-| `downloadAudit` | Return an `\SplFileInfo` pointing at a temp file holding the provider's audit / evidence data. Use `Sdk\Support\TempFile::fromBytes()` and set the extension (`.json` / `.pdf`) so callers can dispatch on content type. | Keep the file open. Delete the file — the caller owns its lifecycle. |
+| `hasAuditTrail` | Return `true` when the provider exposes a machine-readable audit trail through `downloadAudit()`; `false` otherwise. The value must be stable across calls — callers use it to gate UI at composition time, not per-envelope. | Vary the return by envelope, config, or feature-flag. If audit-trail availability depends on runtime state, return `false` and throw a clear `ProviderException` from `downloadAudit()`. |
+| `downloadAudit` | Return an `\SplFileInfo` pointing at a temp file holding the provider's audit / evidence data. Use `Sdk\Support\TempFile::fromBytes()` and set the extension (`.json` / `.pdf`) so callers can dispatch on content type. When `hasAuditTrail()` returns `false`, throw a `ProviderException` here instead. | Keep the file open. Delete the file — the caller owns its lifecycle. |
 | `cancel` | Void / archive / delete according to the provider's semantics. Idempotent if possible. | Swallow errors. Surface them as `ProviderException`. |
 
 ### Status mapping pattern

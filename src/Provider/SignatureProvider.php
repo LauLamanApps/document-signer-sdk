@@ -60,6 +60,19 @@ interface SignatureProvider
     public function downloadSignedDocument(string $providerEnvelopeId, string $documentId): \SplFileInfo;
 
     /**
+     * Whether this provider exposes a machine-readable audit trail through
+     * {@see downloadAudit()}.
+     *
+     * Both first-party providers (ValidSign, DocuSign) return `true`. The
+     * flag exists for consumers to gate audit-trail UI (a download button,
+     * a scheduled evidence-archival job) at composition time — implementations
+     * without an audit-trail endpoint should return `false` and throw from
+     * `downloadAudit()`, so calling code can decide up-front instead of
+     * catching an exception.
+     */
+    public function hasAuditTrail(): bool;
+
+    /**
      * Download the provider's audit trail / evidence report for the envelope.
      *
      * Providers return different content shapes here, so the response is
@@ -71,6 +84,9 @@ interface SignatureProvider
      *
      * Callers own the file lifecycle: unlink it, or copy the contents to a
      * durable location, when done. Nothing here removes it automatically.
+     *
+     * Only call this when {@see hasAuditTrail()} returns `true`; providers
+     * without an audit-trail endpoint throw a {@see ProviderException} here.
      *
      * @throws ProviderException
      */

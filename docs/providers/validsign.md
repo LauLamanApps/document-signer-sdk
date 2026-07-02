@@ -97,6 +97,7 @@ echo $receipt->providerEnvelopeId; // ValidSign packageId
 | `getStatus()` | `GET /packages/{id}` |
 | `downloadSigned()` | `GET /packages/{id}/documents/zip` — returns a ZIP with one signed PDF per document in the package. Materialised to a temp file, returned as `\SplFileInfo` with a `.zip` extension. |
 | `downloadSignedDocument()` | `GET /packages/{id}/documents/{documentId}` — returns the signed PDF for a single document by its `Document::$id`. Materialised to a temp file, returned as `\SplFileInfo` with a `.pdf` extension. |
+| `hasAuditTrail()` | Constant `true` — ValidSign always ships the Evidence Summary Report. |
 | `downloadAudit()` | `GET /packages/{id}/evidence/summary` — returns the Evidence Summary Report as a PDF. Materialised to a temp file, returned as `\SplFileInfo` with a `.pdf` extension. |
 | `getFieldValues()` | `GET /packages/{id}/fieldSummary` — returns each filled form-field value as a list of `FieldValue` DTOs (`documentId`, `signerKey`, `fieldName`, `value`). Use this to pull data typed during signing (e.g. an IBAN in a SEPA-mandate text field). |
 | `cancel()` | `DELETE /packages/{id}` |
