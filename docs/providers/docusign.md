@@ -119,6 +119,7 @@ echo $receipt->providerEnvelopeId; // DocuSign envelopeId GUID
 | `send()` | `POST /v2.1/accounts/{accountId}/envelopes` with base64-encoded documents and anchor tabs. |
 | `getStatus()` | `GET /v2.1/accounts/{accountId}/envelopes/{envelopeId}` |
 | `downloadSigned()` | `GET /v2.1/accounts/{accountId}/envelopes/{envelopeId}/documents/archive` — returns a ZIP with one signed PDF per document in the envelope. Materialised to a temp file, returned as `\SplFileInfo` with a `.zip` extension. |
+| `downloadSignedDocument()` | `GET /v2.1/accounts/{accountId}/envelopes/{envelopeId}/documents/{documentId}` — returns the signed PDF for a single document by its `Document::$id`. Materialised to a temp file, returned as `\SplFileInfo` with a `.pdf` extension. |
 | `downloadAudit()` | `GET /v2.1/accounts/{accountId}/envelopes/{envelopeId}/audit_events` — returns the envelope audit-events feed as JSON. Materialised to a temp file, returned as `\SplFileInfo` with a `.json` extension. |
 | `getFieldValues()` | `GET /v2.1/accounts/{accountId}/envelopes/{envelopeId}/recipients?include_tabs=true` — enumerates every recipient tab (text, checkbox, dateSigned, listTabs, radioGroup, plus the personal-data tabs like ssn/zip/phone/email/fullName/…), returning each filled `value`/`selected` as a `FieldValue` (`documentId`, `signerKey`=`recipientId`, `fieldName`=`tabLabel`, `value`). Empty strings are normalised to `null`. |
 | `cancel()` | `PUT /v2.1/accounts/{accountId}/envelopes/{envelopeId}` with `{ "status": "voided", "voidedReason": "..." }`. |

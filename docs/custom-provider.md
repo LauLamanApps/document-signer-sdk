@@ -26,8 +26,9 @@ For every envelope your provider receives it should:
 5. Translate the provider's status vocabulary into the normalised
    `EnvelopeStatus` enum on the way back.
 
-You implement five entry points — `send`, `getStatus`, `downloadSigned`,
-`downloadAudit`, `cancel` — and translate provider errors into `ProviderException`.
+You implement the `SignatureProvider` interface — `send`, `getStatus`,
+`downloadSigned`, `downloadSignedDocument`, `downloadAudit`, `getFieldValues`,
+`cancel` — and translate provider errors into `ProviderException`.
 
 ## 1. Pick a name and create the package
 
@@ -255,6 +256,15 @@ final class HellosignProvider implements SignatureProvider
         );
     }
 
+    public function downloadSignedDocument(string $providerEnvelopeId, string $documentId): \SplFileInfo
+    {
+        return TempFile::fromBytes(
+            bytes: $this->client->downloadSignedDocument($providerEnvelopeId, $documentId),
+            prefix: 'hellosign-signed-doc-',
+            extension: 'pdf',
+        );
+    }
+
     public function downloadAudit(string $providerEnvelopeId): \SplFileInfo
     {
         return TempFile::fromBytes(
@@ -280,6 +290,7 @@ final class HellosignProvider implements SignatureProvider
 | `send` | Push the envelope to "sent" state at the provider. Return the provider's id and a non-`Draft` status. | Throw any exception other than `ProviderException` (wrap renderer/HTTP errors). |
 | `getStatus` | Return one of the `EnvelopeStatus` enum cases. Use `EnvelopeStatus::Unknown` for vocabulary you don't recognise. | Cache the result. Callers expect a fresh fetch. |
 | `downloadSigned` | Return an `\SplFileInfo` pointing at a temp file holding a ZIP archive of the signed documents — one PDF per envelope document. Use `Sdk\Support\TempFile::fromBytes()` with extension `zip`. | Return a merged single PDF (loses per-doc boundaries). Delete the file — the caller owns its lifecycle. |
+| `downloadSignedDocument` | Return an `\SplFileInfo` pointing at a temp file holding the signed PDF for a single document — keyed by the same `$documentId` the caller passed on `Document::$id`. Use `Sdk\Support\TempFile::fromBytes()` with extension `pdf`. | Fall back to `downloadSigned()` + ZIP extraction on the caller's behalf — providers all expose a single-document endpoint. Delete the file. |
 | `downloadAudit` | Return an `\SplFileInfo` pointing at a temp file holding the provider's audit / evidence data. Use `Sdk\Support\TempFile::fromBytes()` and set the extension (`.json` / `.pdf`) so callers can dispatch on content type. | Keep the file open. Delete the file — the caller owns its lifecycle. |
 | `cancel` | Void / archive / delete according to the provider's semantics. Idempotent if possible. | Swallow errors. Surface them as `ProviderException`. |
 

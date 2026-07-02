@@ -109,17 +109,22 @@ echo $receipt->status->value;      // "sent"
 
 ## 6. Track status and retrieve the signed documents
 
-Both `downloadSigned()` and `downloadAudit()` return an `\SplFileInfo` pointing
-at a temp file the SDK just wrote — you own the file after the call:
+`downloadSigned()`, `downloadSignedDocument()`, and `downloadAudit()` all
+return an `\SplFileInfo` pointing at a temp file the SDK just wrote — you
+own the file after the call:
 
 ```php
 $status = $provider->getStatus($receipt->providerEnvelopeId);
 
 if ($status->value === 'completed') {
-    // Signed documents come back as a ZIP archive with one PDF per document
-    // in the envelope, so multi-document envelopes stay separable.
+    // All signed documents as a ZIP archive with one PDF per document in the
+    // envelope, so multi-document envelopes stay separable.
     $archive = $provider->downloadSigned($receipt->providerEnvelopeId);
     rename($archive->getPathname(), storage_path('nda.zip'));
+
+    // Or fetch a single document by its original Document::$id — no ZIP round-trip:
+    $pdf = $provider->downloadSignedDocument($receipt->providerEnvelopeId, 'nda');
+    rename($pdf->getPathname(), storage_path('nda.pdf'));
 
     // Audit / evidence: DocuSign returns `.json`, ValidSign returns `.pdf`.
     $audit = $provider->downloadAudit($receipt->providerEnvelopeId);

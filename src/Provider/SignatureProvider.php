@@ -41,6 +41,25 @@ interface SignatureProvider
     public function downloadSigned(string $providerEnvelopeId): \SplFileInfo;
 
     /**
+     * Download the signed PDF for a single document in the envelope.
+     *
+     * `$documentId` is the id the caller originally passed on
+     * {@see \LauLamanApps\DocumentSigner\Sdk\Document\Document::$id} — both
+     * providers use it as the primary key on the underlying endpoint:
+     *
+     *  - ValidSign: `GET /packages/{packageId}/documents/{documentId}`
+     *  - DocuSign:  `GET /v2.1/accounts/{accountId}/envelopes/{envelopeId}/documents/{documentId}`
+     *
+     * Useful when the caller only needs one document from a multi-document
+     * envelope and wants to skip the ZIP round-trip. Response is materialised
+     * to a temp file on disk with a `.pdf` extension; the caller owns the
+     * lifecycle.
+     *
+     * @throws ProviderException
+     */
+    public function downloadSignedDocument(string $providerEnvelopeId, string $documentId): \SplFileInfo;
+
+    /**
      * Download the provider's audit trail / evidence report for the envelope.
      *
      * Providers return different content shapes here, so the response is
