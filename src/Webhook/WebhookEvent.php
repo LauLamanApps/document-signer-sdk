@@ -9,8 +9,11 @@ namespace LauLamanApps\DocumentSigner\Sdk\Webhook;
  *
  * Providers each expose their own string-backed enum with the vendor-specific
  * event vocabulary (`PACKAGE_COMPLETE`, `envelope-completed`, `signature_request_signed`, …).
- * By having each of those enums implement this interface, application code can
- * classify a callback without knowing which vendor emitted it:
+ * Extending {@see \BackedEnum} makes that explicit: every `WebhookEvent` is a
+ * string-backed enum case, so `from()`/`tryFrom()`/`cases()` are part of the
+ * contract, and an enum with an `Unknown` case can always resolve a token to a
+ * non-null case. By having each of those enums implement this interface,
+ * application code can classify a callback without knowing which vendor emitted it:
  *
  * ```php
  * function handle(WebhookEvent $event): void {
@@ -28,19 +31,13 @@ namespace LauLamanApps\DocumentSigner\Sdk\Webhook;
  * answer `true` from at most one of them; unknown-in-purpose events return
  * `false` from all four.
  */
-interface WebhookEvent
+interface WebhookEvent extends \BackedEnum
 {
     /**
      * The provider-native token as returned inside the callback payload
      * (`"PACKAGE_COMPLETE"`, `"envelope-completed"`, ...).
      */
     public function value(): string;
-
-    /**
-     * Provider identifier — matches `SignatureProvider::NAME`
-     * (`"validsign"`, `"docusign"`, ...).
-     */
-    public function provider(): string;
 
     /**
      * True when the envelope has been fully signed by every required signer.
