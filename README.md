@@ -12,6 +12,16 @@ and creates the envelope.
 +-------------------+        +--------------------+        +----------------------+
 ```
 
+## Contents
+
+- [Packages](#packages)
+- [Framework integrations](#framework-integrations)
+- [Fluent builder](#fluent-builder)
+- [Page decoration](#page-decoration)
+- [End-to-end example](#end-to-end-example)
+- [Documentation](#documentation)
+- [Requirements](#requirements)
+
 ## Packages
 
 | Package | Path | Purpose |
@@ -22,6 +32,27 @@ and creates the envelope.
 
 All three are installed together for local development through the root
 `composer.json`, which exposes them as `path` repositories.
+
+## Framework integrations
+
+Rather than wiring the SDK by hand, two packages integrate it into the popular
+PHP frameworks. Each gives you a container-managed `DocumentSignerManager` that
+resolves a `SignatureProvider` by name, verified webhook routes, and a signer-
+email **recipient override** for dev/staging. They mirror each other — same
+providers-list config, same webhook event — so the two stay conceptually
+identical:
+
+| Package | Repository | Purpose |
+| --- | --- | --- |
+| `laulamanapps/document-signer-symfony` | [document-signer-symfony](https://github.com/LauLamanApps/document-signer-symfony) | Bundle: configuration, driver manager, verified webhook routes, translated event labels. |
+| `laulamanapps/document-signer-laravel` | [document-signer-laravel](https://github.com/LauLamanApps/document-signer-laravel) | Config, service provider, driver manager, facade, Blade placeholder components, verified webhook routes. |
+
+Install the one matching your framework:
+
+```bash
+composer require laulamanapps/document-signer-laravel   # Laravel
+composer require laulamanapps/document-signer-symfony   # Symfony
+```
 
 ## Fluent builder
 
@@ -136,6 +167,8 @@ relevant guide:
 - [Writing a custom provider](docs/custom-provider.md)
 - [Error handling](docs/errors.md)
 - [Webhook events](docs/webhook-events.md)
+- [Symfony integration](https://github.com/LauLamanApps/document-signer-symfony)
+- [Laravel integration](https://github.com/LauLamanApps/document-signer-laravel)
 
 ## Requirements
 
