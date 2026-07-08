@@ -10,6 +10,7 @@ use LauLamanApps\DocumentSigner\Sdk\Exception\ProviderNotFoundException;
 use LauLamanApps\DocumentSigner\Sdk\Exception\ProviderRateLimitException;
 use LauLamanApps\DocumentSigner\Sdk\Exception\ProviderTransientException;
 use LauLamanApps\DocumentSigner\Sdk\Exception\ProviderValidationException;
+use LauLamanApps\DocumentSigner\Sdk\Exception\SignedDocumentUnavailableException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -45,6 +46,23 @@ final class ProviderExceptionTest extends TestCase
         yield '429 rate limit' => [429, ProviderRateLimitException::class, true];
         yield '500 transient'  => [500, ProviderTransientException::class, true];
         yield '503 transient'  => [503, ProviderTransientException::class, true];
+    }
+
+    #[Test]
+    public function signed_document_unavailable_is_a_retryable_provider_exception(): void
+    {
+        $e = SignedDocumentUnavailableException::for(
+            providerName: 'DocuSign',
+            providerEnvelopeId: 'env-42',
+            documentId: 'C-1-sepa',
+        );
+
+        self::assertInstanceOf(ProviderException::class, $e);
+        self::assertTrue($e->isRetryable());
+        self::assertSame('env-42', $e->providerEnvelopeId);
+        self::assertStringContainsString('C-1-sepa', $e->getMessage());
+        self::assertStringContainsString('env-42', $e->getMessage());
+        self::assertStringContainsString('not be finalized yet', $e->getMessage());
     }
 
     #[Test]
